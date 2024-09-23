@@ -26,7 +26,6 @@ find_package(glad CONFIG REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
-find_package(SDL2 REQUIRED)
 find_package(glm REQUIRED)
 find_package(imgui REQUIRED)
 find_package(OpenCV REQUIRED)
@@ -47,8 +46,6 @@ target_link_libraries(${MY_EXECUTABLE} PRIVATE
     OpenGL::GLU
     GLUT::GLUT
     glad::glad
-    SDL2::SDL2
-    SDL2::SDL2main
     glm::glm
     imgui::imgui
     opencv_ml

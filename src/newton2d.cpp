@@ -46,6 +46,7 @@ Matrix2d get_jacobian_value(PolynomialMatrix2d jacobian, Vector2d point){
 
 std::vector<Vector2d> newton2d(Polynomial f, Polynomial g, Vector2d startPoint){
     std::vector<Vector2d> result;
+    result.push_back(startPoint);
     Vector2d nowPoint, lastPoint;
     PolynomialMatrix2d jacobian = get_jacobian_matrix(f, g);
     nowPoint = startPoint;

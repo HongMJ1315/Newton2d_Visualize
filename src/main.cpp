@@ -58,9 +58,9 @@ int main(int argc, char **argv){
     }
 
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwMakeContextCurrent(window);
     glfwSetWindowSizeCallback(window, reshape);
     std::cout << "GLFW version: " << glfwGetVersionString() << std::endl;
@@ -69,22 +69,80 @@ int main(int argc, char **argv){
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+    const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    const GLubyte* version = glGetString(GL_VERSION);
+    std::cout << "GLSL version: " << glslVersion << std::endl;
+    std::cout << "Renderer: " << renderer << std::endl;
+    std::cout << "OpenGL version supported: " << version << std::endl;
+    
     auto vao = set_vao();
-    auto func_shader = setGLSLshaders("shader/vert.glsl", "shader/frag.glsl");
+    auto pointVAOVBO = set_point_vao();
+    unsigned int pointVao = pointVAOVBO.first;
+    unsigned int pointVbo = pointVAOVBO.second;
+    auto func_shader = setGLSLshaders("shader/func_vert.glsl", "shader/func_frag.glsl");
+    auto point_shader = setGLSLshaders("shader/point_vert.glsl", "shader/point_frag.glsl");
+
+    Vector2d start = {1,4};
+    auto newtonReslut = newton2d(f, g, start);
+    std::vector<glm::vec2> points, points2;
+
+    for(auto i : newtonReslut){
+        std::cout << i[0] << " " << i[1] << std::endl;
+        points.push_back({i[0], i[1]}); 
+    }
+
+    start = {-4, 1};
+    auto newtonReslut2 = newton2d(f, g, start);
+
+    for(auto i : newtonReslut2){
+        std::cout << i[0] << " " << i[1] << std::endl;
+        points2.push_back({i[0], i[1]}); 
+    }
+
+
+    int showPoint = 1;
+
+
+    // get now time
+    float lastTime = glfwGetTime();
     while(!glfwWindowShouldClose(window)){
+        float nowTime = glfwGetTime();
+        // if(nowTime - lastTime > 2){
+        //     if(show_point < points.size()) 
+        //         show_point++;
+        //     lastTime = nowTime;
+        // }
+        
 
-
-        // 清除颜色缓冲
+        
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        // 使用着色器程序
+
         glUseProgram(func_shader);
 
-        // 绑定 VAO 并绘制
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        // 交换缓冲区和轮询事件
+        glUseProgram(point_shader);
+
+        glBindVertexArray(pointVao);
+
+        std::vector<Vertex> vertices = update_vbo(pointVbo, points, -1); 
+        glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
+
+        glPointSize(8.0f);
+        glDrawArrays(GL_POINTS, 0, vertices.size());
+
+        std::vector<Vertex> vertices2 = update_vbo(pointVbo, points2, -1); 
+        glDrawArrays(GL_LINE_STRIP, 0, vertices2.size());
+
+        glPointSize(8.0f);
+        glDrawArrays(GL_POINTS, 0, vertices2.size());
+
+        
+        glBindVertexArray(0);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

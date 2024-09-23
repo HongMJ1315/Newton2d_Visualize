@@ -4,6 +4,7 @@
 #include<Eigen/Dense>
 #include<Eigen/Core>
 #include<map>
+#include<iostream>
 #define ESP 1e-6
 
 struct term{
