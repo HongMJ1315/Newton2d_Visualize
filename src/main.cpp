@@ -5,7 +5,12 @@
 #include<glm/glm.hpp>
 
 #include<iomanip>
+
+#include<fstream>
 #include"newton2d.h"
+#include"visualize.h"
+#include"glsl.h"
+#include "GLinclude.h"
 
 // f(x, y) = 1/9 * x^2 + 1/4 * y^2 - 1
 // g(x, y) = x^2 - y - 4
@@ -33,21 +38,59 @@ Polynomial g = {
 // };
 
 
-/*
-[∂f/∂x, ∂f/∂y]
-[∂g/∂x, ∂g/∂y]
-*/
+int width = 800;
+int height = 600;
 
-
-int main(){
-    /*
-    Vector2d nowPoint, lastPoint;
-    PolynomialMatrix2d jacobian = get_jacobian_matrix(f, g);
-    nowPoint = {20, 20};
-    std::vector<Vector2d> res = newton2d(f, g, nowPoint);
-    for(auto i:res){
-        std::cout << std::fixed << std::setprecision(6) << i[0] << " " << i[1] << std::endl;
+void reshape(GLFWwindow *window, int w, int h){
+    width = w;
+    height = h;
+}
+int main(int argc, char **argv){
+    glutInit(&argc, argv);
+    if(!glfwInit()){
+        return -1;
     }
-*/
 
+    GLFWwindow *window = glfwCreateWindow(width, height, "Hw1", nullptr, nullptr);
+    if(!window){
+        glfwTerminate();
+        return -1;
+    }
+
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+    glfwMakeContextCurrent(window);
+    glfwSetWindowSizeCallback(window, reshape);
+    std::cout << "GLFW version: " << glfwGetVersionString() << std::endl;
+
+    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+    auto vao = set_vao();
+    auto func_shader = setGLSLshaders("shader/vert.glsl", "shader/frag.glsl");
+    while(!glfwWindowShouldClose(window)){
+
+
+        // 清除颜色缓冲
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        // 使用着色器程序
+        glUseProgram(func_shader);
+
+        // 绑定 VAO 并绘制
+        glBindVertexArray(vao);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // 交换缓冲区和轮询事件
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
+    return 0;
 }

@@ -2,8 +2,9 @@
 #define GLINCLUDE_H
 
 #include "glm/glm.hpp"
-// GLEW
-#include <GL/glew.h>
+
+// GLAD
+#include <glad/glad.h>
 
 // GLFW
 #include <GLFW/glfw3.h>
@@ -14,10 +15,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// GLU
-#include <GL/freeglut.h>
-#include <GL/glext.h>
-#include <GL/glu.h>
+// GLUT 
 #include <GL/glut.h>
+
+
 
 #endif

@@ -22,6 +22,7 @@ set_target_properties(${MY_EXECUTABLE}
 
 # Find external libraries
 find_package(glfw3 CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
@@ -45,6 +46,7 @@ target_link_libraries(${MY_EXECUTABLE} PRIVATE
     OpenGL::GL
     OpenGL::GLU
     GLUT::GLUT
+    glad::glad
     SDL2::SDL2
     SDL2::SDL2main
     glm::glm
@@ -54,4 +56,11 @@ target_link_libraries(${MY_EXECUTABLE} PRIVATE
     opencv_core
     opencv_flann
     opencv_imgcodecs
+)
+
+add_custom_command(TARGET ${MY_EXECUTABLE} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E create_symlink
+    "${CMAKE_CURRENT_SOURCE_DIR}/shader"
+    "$<TARGET_FILE_DIR:${MY_EXECUTABLE}>/shader"
+    VERBATIM
 )
