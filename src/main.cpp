@@ -108,7 +108,7 @@ int main(int argc, char **argv){
         float nowTime = glfwGetTime();
 
         int pointListI = nxt / 7, pointListJ = nxt % 7;
-        if(nowTime - lastTime > 0.5){
+        if(nowTime - lastTime > 0.05){
             if(showPoint < pointList[pointListI][pointListJ].size()) {
                 showPoint++;
                 
@@ -127,8 +127,10 @@ int main(int argc, char **argv){
                             if(i == 0) start = {0.0001, j};
                             auto newtonResult = newton2d(f, g, start);
                             std::cout<< "(" << i << ", " << j << ") => " << newtonResult.size() << " steps" << std::endl; 
-                            for(auto k:newtonResult)
+                            for(auto k:newtonResult){
                                 pointList[i + 4][j + 3].push_back({k[0], k[1]});
+                            }
+                            std::cout << "====================" << std::endl;
                         }
                     }
 
