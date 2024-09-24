@@ -97,6 +97,7 @@ int main(int argc, char **argv){
 
     static char x_input[64] = "0.001";
     static char y_input[64] = "1";
+    static char speed_input[64] = "1";
 /*
     std::vector<glm::vec2> pointList[9][7];
     for(int i = -4; i < 5; i++){
@@ -115,8 +116,7 @@ int main(int argc, char **argv){
 */
     int showPoint = 1;
 
-    int nxt = 0;
-
+    float speed = 0.5;
     // get now time
     float lastTime = glfwGetTime();
     std::vector<glm::vec2> pointList;
@@ -168,9 +168,9 @@ int main(int argc, char **argv){
 
             ImGui::InputText("X", x_input, IM_ARRAYSIZE(x_input));
             ImGui::InputText("Y", y_input, IM_ARRAYSIZE(y_input));
+            ImGui::InputText("Speed", speed_input, IM_ARRAYSIZE(speed_input));
 
             float x = 0, y = 0;
-
 
             if (ImGui::Button("Run")) {
                 std::string x_value(x_input);
@@ -184,7 +184,13 @@ int main(int argc, char **argv){
                 for(auto i:newtonResult)
                     pointList.push_back({i[0], i[1]});
             }
-
+            if (ImGui::Button("Set Speed")) {
+                std::string s = std::string(speed_input);
+                if(s.size() == 0) speed = speed;
+                else
+                    speed = std::stod(std::string(speed_input));
+                
+            }
 
             ImGui::Text("(%lf, %lf) => step: %d", x, y, (int)pointList.size());
             for(int i = 0; i < pointList.size(); i++){
@@ -195,7 +201,7 @@ int main(int argc, char **argv){
             ImGui::End();
         }
 
-        if(nowTime - lastTime > 1){
+        if(nowTime - lastTime > speed){
             if(showPoint < pointList.size()) {
                 lastTime = nowTime;
                 showPoint++;
