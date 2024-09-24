@@ -114,7 +114,10 @@ int main(int argc, char **argv){
                 
             }
             else{
-                if(nxt < 62) nxt++, showPoint = 0;
+                if(nxt < 62){
+                    nxt++, showPoint = 1;
+                    pointListI = nxt / 7, pointListJ = nxt % 7;
+                }
                 else{
                     nxt= 0;
                     for(int i = -4; i < 5; i++){
@@ -157,8 +160,8 @@ int main(int argc, char **argv){
         //     glPointSize(8.0f);
         //     glDrawArrays(GL_POINTS, 0, vertices.size());
         // }
-
         std::vector<Vertex> vertices = update_vbo(pointVbo, pointList[pointListI][pointListJ], showPoint); 
+
         glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
 
         glPointSize(8.0f);
