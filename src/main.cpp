@@ -12,6 +12,11 @@
 #include"glsl.h"
 #include "GLinclude.h"
 
+// ImGui 头文件
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 // f(x, y) = 1/9 * x^2 + 1/4 * y^2 - 1
 // g(x, y) = x^2 - y - 4
 // key: 'x', 'y', 'c'（c for constant）
@@ -83,6 +88,16 @@ int main(int argc, char **argv){
     auto func_shader = setGLSLshaders("shader/func_vert.glsl", "shader/func_frag.glsl");
     auto point_shader = setGLSLshaders("shader/point_vert.glsl", "shader/point_frag.glsl");
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 400");
+
+    static char x_input[64] = "0.001";
+    static char y_input[64] = "1";
+/*
     std::vector<glm::vec2> pointList[9][7];
     for(int i = -4; i < 5; i++){
         for(int j = -3; j < 4; j++){
@@ -97,16 +112,20 @@ int main(int argc, char **argv){
             std::cout << "====================" << std::endl;
         }
     }
-
+*/
     int showPoint = 1;
 
     int nxt = 0;
 
     // get now time
     float lastTime = glfwGetTime();
+    std::vector<glm::vec2> pointList;
+    std::string res;
+
     while(!glfwWindowShouldClose(window)){
         float nowTime = glfwGetTime();
 
+/*
         int pointListI = nxt / 7, pointListJ = nxt % 7;
         if(nowTime - lastTime > 0.05){
             if(showPoint < pointList[pointListI][pointListJ].size()) {
@@ -138,9 +157,52 @@ int main(int argc, char **argv){
             }
             lastTime = nowTime;
         }
-        
+*/        
 
-        
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        {
+            ImGui::Begin("Input Window"); 
+
+            ImGui::InputText("X", x_input, IM_ARRAYSIZE(x_input));
+            ImGui::InputText("Y", y_input, IM_ARRAYSIZE(y_input));
+
+            float x = 0, y = 0;
+
+
+            if (ImGui::Button("Run")) {
+                std::string x_value(x_input);
+                std::string y_value(y_input);
+
+                x = std::stod(x_value), y = std::stof(y_value);
+                showPoint = 0;
+                Vector2d start = {x, y};
+                auto newtonResult = newton2d(f, g, start);
+                pointList.clear();
+                for(auto i:newtonResult)
+                    pointList.push_back({i[0], i[1]});
+            }
+
+
+            ImGui::Text("(%lf, %lf) => step: %d", x, y, (int)pointList.size());
+            for(int i = 0; i < pointList.size(); i++){
+                ImGui::Text("(%lf, %lf)", pointList[i].x, pointList[i].y);
+
+            }
+
+            ImGui::End();
+        }
+
+        if(nowTime - lastTime > 1){
+            if(showPoint < pointList.size()) {
+                lastTime = nowTime;
+                showPoint++;
+            }  
+        }
+
+
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -162,17 +224,23 @@ int main(int argc, char **argv){
         //     glPointSize(8.0f);
         //     glDrawArrays(GL_POINTS, 0, vertices.size());
         // }
-        std::vector<Vertex> vertices = update_vbo(pointVbo, pointList[pointListI][pointListJ], showPoint); 
+        if(pointList.size() != 0){
+            std::vector<Vertex> vertices = update_vbo(pointVbo, pointList, showPoint); 
 
-        glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
+            glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
 
-        glPointSize(8.0f);
-        glDrawArrays(GL_POINTS, 0, vertices.size());
+            glPointSize(8.0f);
+            glDrawArrays(GL_POINTS, 0, vertices.size());
 
-        glBindVertexArray(0);
+            glBindVertexArray(0);
+        }
+        // 渲染 ImGui
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
     }
 
     glfwDestroyWindow(window);
