@@ -87,16 +87,16 @@ int main(int argc, char **argv){
     for(int i = -4; i < 5; i++){
         for(int j = -3; j < 4; j++){
             Vector2d start = {i, j};
-            if(i == 0) start = {0.0001, j};
+            // if(i == 0) start = {0.0001, j};
             auto newtonResult = newton2d(f, g, start);
             std::cout<< "(" << i << ", " << j << ") => " << newtonResult.size() << " steps" << std::endl; 
-            for(auto k:newtonResult)
+            for(auto k:newtonResult){
+                std::cout << std::fixed << std::setprecision(7) << k[0] << " " << k[1] << std::endl;        
                 pointList[i + 4][j + 3].push_back({k[0], k[1]});
+            }
         }
     }
 
-
-    
     int showPoint = 1;
 
     int nxt = 0;
@@ -114,7 +114,21 @@ int main(int argc, char **argv){
             }
             else{
                 if(nxt < 62) nxt++, showPoint = 0;
-                else nxt = 0;
+                else{
+                    nxt= 0;
+                    for(int i = -4; i < 5; i++){
+                        for(int j = -3; j < 4; j++){
+                            pointList[i + 4][j + 3].clear();
+                            Vector2d start = {i, j};
+                            if(i == 0) start = {0.0001, j};
+                            auto newtonResult = newton2d(f, g, start);
+                            std::cout<< "(" << i << ", " << j << ") => " << newtonResult.size() << " steps" << std::endl; 
+                            for(auto k:newtonResult)
+                                pointList[i + 4][j + 3].push_back({k[0], k[1]});
+                        }
+                    }
+
+                }
             }
             lastTime = nowTime;
         }

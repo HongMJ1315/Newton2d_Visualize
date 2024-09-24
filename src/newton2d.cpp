@@ -59,6 +59,11 @@ std::vector<Vector2d> newton2d(Polynomial f, Polynomial g, Vector2d startPoint){
         if(error < ESP)
             break;
         result.push_back(nowPoint);
+        double x = nowPoint[0], y = nowPoint[1];
+        if(x != x || y != y){
+            std::cout << "NAN" << std::endl;
+            break;
+        }
     }
     return result;
 }
