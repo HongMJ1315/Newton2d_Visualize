@@ -16,7 +16,8 @@ void main(){
 
     double thickness = 0.05;
 
-    double alpha1 = 1.0 - smoothstep(0.0, thickness, abs(value1));
+    //smoothstep 插植 
+    double alpha1 = 1.0 - smoothstep(0.0, thickness, abs(value1)); // value1 = 0 為在線上
     double alpha2 = 1.0 - smoothstep(0.0, thickness, abs(value2));
 
     vec3 color1 = vec3(1.0, 0.0, 0.0);
@@ -30,6 +31,7 @@ void main(){
 
     double gridThickness = 0.01;
 
+    // x, y 被四捨五入回整數點
     double xGridDist = abs(x - round(x));
     double yGridDist = abs(y - round(y));
 

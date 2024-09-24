@@ -83,36 +83,41 @@ int main(int argc, char **argv){
     auto func_shader = setGLSLshaders("shader/func_vert.glsl", "shader/func_frag.glsl");
     auto point_shader = setGLSLshaders("shader/point_vert.glsl", "shader/point_frag.glsl");
 
-    Vector2d start = {1,4};
-    auto newtonReslut = newton2d(f, g, start);
-    std::vector<glm::vec2> points, points2;
-
-    for(auto i : newtonReslut){
-        std::cout << i[0] << " " << i[1] << std::endl;
-        points.push_back({i[0], i[1]}); 
-    }
-
-    start = {-4, 1};
-    auto newtonReslut2 = newton2d(f, g, start);
-
-    for(auto i : newtonReslut2){
-        std::cout << i[0] << " " << i[1] << std::endl;
-        points2.push_back({i[0], i[1]}); 
+    std::vector<glm::vec2> pointList[9][7];
+    for(int i = -4; i < 5; i++){
+        for(int j = -3; j < 4; j++){
+            Vector2d start = {i, j};
+            if(i == 0) start = {0.0001, j};
+            auto newtonResult = newton2d(f, g, start);
+            std::cout<< "(" << i << ", " << j << ") => " << newtonResult.size() << " steps" << std::endl; 
+            for(auto k:newtonResult)
+                pointList[i + 4][j + 3].push_back({k[0], k[1]});
+        }
     }
 
 
+    
     int showPoint = 1;
 
+    int nxt = 0;
 
     // get now time
     float lastTime = glfwGetTime();
     while(!glfwWindowShouldClose(window)){
         float nowTime = glfwGetTime();
-        // if(nowTime - lastTime > 2){
-        //     if(show_point < points.size()) 
-        //         show_point++;
-        //     lastTime = nowTime;
-        // }
+
+        int pointListI = nxt / 7, pointListJ = nxt % 7;
+        if(nowTime - lastTime > 0.1){
+            if(showPoint < pointList[pointListI][pointListJ].size()) {
+                showPoint++;
+                
+            }
+            else{
+                if(nxt < 62) nxt++, showPoint = 0;
+                else nxt = 0;
+            }
+            lastTime = nowTime;
+        }
         
 
         
@@ -128,19 +133,22 @@ int main(int argc, char **argv){
 
         glBindVertexArray(pointVao);
 
-        std::vector<Vertex> vertices = update_vbo(pointVbo, points, -1); 
+        // for(int i = 0; i < 63; i++){
+        //     int pointListI = i / 7, pointListJ = i % 7;
+
+        //     std::vector<Vertex> vertices = update_vbo(pointVbo, pointList[pointListI][pointListJ], -1); 
+        //     glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
+
+        //     glPointSize(8.0f);
+        //     glDrawArrays(GL_POINTS, 0, vertices.size());
+        // }
+
+        std::vector<Vertex> vertices = update_vbo(pointVbo, pointList[pointListI][pointListJ], showPoint); 
         glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
 
         glPointSize(8.0f);
         glDrawArrays(GL_POINTS, 0, vertices.size());
 
-        std::vector<Vertex> vertices2 = update_vbo(pointVbo, points2, -1); 
-        glDrawArrays(GL_LINE_STRIP, 0, vertices2.size());
-
-        glPointSize(8.0f);
-        glDrawArrays(GL_POINTS, 0, vertices2.size());
-
-        
         glBindVertexArray(0);
 
         glfwSwapBuffers(window);

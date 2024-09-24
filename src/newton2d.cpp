@@ -30,7 +30,6 @@ double get_func_value(Polynomial p, Vector2d point){
         }
         for(auto it2 = it->second.begin(); it2 != it->second.end(); it2++)
             result += it2->coef * std::pow(point[it->first - 'x'], it2->power);
-        
     }
     return result;
 }
@@ -55,7 +54,8 @@ std::vector<Vector2d> newton2d(Polynomial f, Polynomial g, Vector2d startPoint){
         Matrix2d jacobianValue = get_jacobian_value(jacobian, nowPoint);
         Vector2d fValue = {get_func_value(f, nowPoint), get_func_value(g, nowPoint)};
         nowPoint = lastPoint - jacobianValue.inverse() * fValue;
-        double error = (nowPoint - lastPoint).norm();
+        double error = std::sqrt((nowPoint[0] - lastPoint[0]) * (nowPoint[0] - lastPoint[0]) + 
+                        (nowPoint[1] - lastPoint[1]) * (nowPoint[1] - lastPoint[1]));
         if(error < ESP)
             break;
         result.push_back(nowPoint);
