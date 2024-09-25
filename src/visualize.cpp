@@ -61,7 +61,7 @@ std::pair<unsigned int, unsigned int> set_point_vao(){
 
 }
 
-std::vector<Vertex> update_vbo(unsigned int vbo, std::vector<glm::vec2> points, int showPoint = -1){
+std::vector<Vertex> update_vbo(unsigned int vbo, std::vector<glm::vec2> points, int showPoint = -1, bool divergenceLine = false){
     if(showPoint == -1) showPoint = points.size();
     std::vector<Vertex> vertices;
     for (int i = 0; i < std::min((int)points.size(), showPoint); ++i){
@@ -73,14 +73,19 @@ std::vector<Vertex> update_vbo(unsigned int vbo, std::vector<glm::vec2> points, 
             vertex.color = glm::vec3(1.0f, 0.0f, 0.0f);
         }
         else{
-            if (i == 0){
-                vertex.color = glm::vec3(1.0f, 1.0f, 0.0f);
-            }
-            else if (i == points.size() - 1){
-                vertex.color = glm::vec3(0.0f, 0.0f, 1.0f);
+            if(divergenceLine){
+                vertex.color = glm::vec3(1.0f, 0.0f, 0.0f);
             }
             else{
-                vertex.color = glm::vec3(1.0f, 1.0f, 1.0f);
+                if (i == 0){
+                    vertex.color = glm::vec3(1.0f, 1.0f, 0.0f);
+                }
+                else if (i == points.size() - 1){
+                    vertex.color = glm::vec3(0.0f, 0.0f, 1.0f);
+                }
+                else{
+                    vertex.color = glm::vec3(1.0f, 1.0f, 1.0f);
+                }
             }
         }
 

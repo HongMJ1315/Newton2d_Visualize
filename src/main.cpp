@@ -277,6 +277,13 @@ int main(int argc, char **argv){
             // Show Point Status
             // if start point leads to divergence show red point
             // if start point leads to convergence show green point
+            std::vector<glm::vec2> divergencePointList;
+            for(int i = -3; i < 4; i++)
+                divergencePointList.push_back({0, i});
+            std::vector<Vertex> vertices = update_vbo(pointVbo, divergencePointList, -1, 1); 
+            glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
+            glPointSize(8.0f);
+            glDrawArrays(GL_POINTS, 0, vertices.size());
             for(int i = -4; i < 5; i++){
                 for(int j = -3; j < 4; j++){
                     std::vector<Vertex> vertices = update_point_vbo(pointVbo, allPointList[i + 4][j + 3]); 
@@ -288,7 +295,7 @@ int main(int argc, char **argv){
         }
 
         if(pointList.size() != 0){
-            std::vector<Vertex> vertices = update_vbo(pointVbo, pointList, showPoint); 
+            std::vector<Vertex> vertices = update_vbo(pointVbo, pointList, showPoint, 0); 
 
             glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
 
