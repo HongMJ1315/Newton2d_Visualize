@@ -104,8 +104,12 @@ int main(int argc, char **argv){
             Vector2d start = {i, j};
             // if(i == 0) start = {0.0001, j};
             auto newtonResult = newton2d(f, g, start);
+            if(newtonResult.back()[0] != newtonResult.back()[0] || newtonResult.back()[1] != newtonResult.back()[1])
+                std::cout << std::fixed << std::setprecision(7) << "( " << i << ", " << j  << " ) => Divergence" << std::endl;        
+            
+            else 
+                std::cout << std::fixed << std::setprecision(7) << "( " << i << ", " << j  << " ) => Step: " << newtonResult.size() << std::endl;        
             for(auto k:newtonResult){
-                // std::cout << std::fixed << std::setprecision(7) << "( " << k[0] << ", " << k[1]  << " )"<< std::endl;        
                 allPointList[i + 4][j + 3].push_back({k[0], k[1]});
             }
         }
