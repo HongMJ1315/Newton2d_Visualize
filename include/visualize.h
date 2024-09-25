@@ -15,4 +15,5 @@ int set_vao();
 std::pair<unsigned int, unsigned int> set_point_vao();
 
 std::vector<Vertex> update_vbo(unsigned int, std::vector<glm::vec2>, int );
+std::vector<Vertex> update_point_vbo(unsigned int, std::vector<glm::vec2>);
 #endif

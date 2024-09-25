@@ -92,3 +92,25 @@ std::vector<Vertex> update_vbo(unsigned int vbo, std::vector<glm::vec2> points, 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     return vertices;
 }
+
+std::vector<Vertex> update_point_vbo(unsigned int vbo, std::vector<glm::vec2> points){
+    std::vector<Vertex> vertices;
+    Vertex vertex;
+    vertex.position = glm::vec2(points.back());
+    double x = points.back().x, y = points.back().y;
+    if(x != x || y != y){
+        vertex.position = glm::vec2(points[0]);
+        vertex.color = glm::vec3(1.0f, 0.0f, 0.0f);
+    }
+    else{
+        vertex.position = glm::vec2(points[0]);
+        vertex.color = glm::vec3(0.0f, 1.0f, 0.0f);
+    }
+
+    vertices.push_back(vertex);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    return vertices;
+}

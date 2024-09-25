@@ -123,41 +123,10 @@ int main(int argc, char **argv){
 
     bool runAll = false;
     bool running = true;
+    bool showPointStatus = false;
+
     while(!glfwWindowShouldClose(window)){
-        float nowTime = glfwGetTime();
-
-/*
-        if(nowTime - lastTime > 0.05){
-            if(showPoint < pointList[pointListI][pointListJ].size()) {
-                showPoint++;
-                
-            }
-            else{
-                if(nxt < 62){
-                    nxt++, showPoint = 1;
-                    pointListI = nxt / 7, pointListJ = nxt % 7;
-                }
-                else{
-                    nxt= 0;
-                    for(int i = -4; i < 5; i++){
-                        for(int j = -3; j < 4; j++){
-                            pointList[i + 4][j + 3].clear();
-                            Vector2d start = {i, j};
-                            if(i == 0) start = {0.0001, j};
-                            auto newtonResult = newton2d(f, g, start);
-                            std::cout<< "(" << i << ", " << j << ") => " << newtonResult.size() << " steps" << std::endl; 
-                            for(auto k:newtonResult){
-                                pointList[i + 4][j + 3].push_back({k[0], k[1]});
-                            }
-                            std::cout << "====================" << std::endl;
-                        }
-                    }
-
-                }
-            }
-            lastTime = nowTime;
-        }
-*/        
+        float nowTime = glfwGetTime();      
         int pointListI = nxt / 7, pointListJ = nxt % 7;
         if(nowTime - lastTime > speed && running){
             if(showPoint < pointList.size()) {
@@ -271,6 +240,10 @@ int main(int argc, char **argv){
 
             }
 
+            if(ImGui::Button("Show Point Status")){
+                showPointStatus = !showPointStatus;
+            }
+
             ImGui::Text("(%lf, %lf) => step: %d", (pointList.size() == 0 ? 0 : pointList[0].x), (pointList.size() == 0 ? 0 : pointList[0].y), (int)pointList.size());
             for(int i = 0; i < pointList.size(); i++){
                 if(pointList[i].x != pointList[i].x || pointList[i].y != pointList[i].y){
@@ -295,6 +268,20 @@ int main(int argc, char **argv){
         glUseProgram(point_shader);
 
         glBindVertexArray(pointVao);
+
+        if(showPointStatus){
+            // Show Point Status
+            // if start point leads to divergence show red point
+            // if start point leads to convergence show green point
+            for(int i = -4; i < 5; i++){
+                for(int j = -3; j < 4; j++){
+                    std::vector<Vertex> vertices = update_point_vbo(pointVbo, allPointList[i + 4][j + 3]); 
+                    glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
+                    glPointSize(8.0f);
+                    glDrawArrays(GL_POINTS, 0, vertices.size());
+                }
+            }
+        }
 
         if(pointList.size() != 0){
             std::vector<Vertex> vertices = update_vbo(pointVbo, pointList, showPoint); 
