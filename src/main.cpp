@@ -3,16 +3,15 @@
 #include<vector>
 #include<utility>
 #include<glm/glm.hpp>
-
+#include<opencv4/opencv2/opencv.hpp>
 #include<iomanip>
-
 #include<fstream>
+
 #include"newton2d.h"
 #include"visualize.h"
 #include"glsl.h"
 #include "GLinclude.h"
 
-// ImGui 头文件
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -259,6 +258,19 @@ int main(int argc, char **argv){
                 running = true;
             }
 
+            ImGui::SameLine();
+
+            if(ImGui::Button("Save Image")){
+                unsigned char *buffer = new unsigned char[3 * width * height];
+                glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+                cv::Mat img(height, width, CV_8UC3, buffer);
+                cv::flip(img, img, 0);
+                cv::cvtColor(img, img, cv::COLOR_RGB2BGR);
+                cv::imwrite("screenshot.jpg", img);
+                delete[] buffer;
+
+            }
+
             ImGui::Text("(%lf, %lf) => step: %d", (pointList.size() == 0 ? 0 : pointList[0].x), (pointList.size() == 0 ? 0 : pointList[0].y), (int)pointList.size());
             for(int i = 0; i < pointList.size(); i++){
                 if(pointList[i].x != pointList[i].x || pointList[i].y != pointList[i].y){
@@ -284,15 +296,6 @@ int main(int argc, char **argv){
 
         glBindVertexArray(pointVao);
 
-        // for(int i = 0; i < 63; i++){
-        //     int pointListI = i / 7, pointListJ = i % 7;
-
-        //     std::vector<Vertex> vertices = update_vbo(pointVbo, pointList[pointListI][pointListJ], -1); 
-        //     glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
-
-        //     glPointSize(8.0f);
-        //     glDrawArrays(GL_POINTS, 0, vertices.size());
-        // }
         if(pointList.size() != 0){
             std::vector<Vertex> vertices = update_vbo(pointVbo, pointList, showPoint); 
 
@@ -303,7 +306,6 @@ int main(int argc, char **argv){
 
             glBindVertexArray(0);
         }
-        // 渲染 ImGui
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

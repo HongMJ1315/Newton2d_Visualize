@@ -48,11 +48,7 @@ target_link_libraries(${MY_EXECUTABLE} PRIVATE
     glad::glad
     glm::glm
     imgui::imgui
-    opencv_ml
-    opencv_dnn
-    opencv_core
-    opencv_flann
-    opencv_imgcodecs
+    ${OpenCV_LIBS}
 )
 
 add_custom_command(TARGET ${MY_EXECUTABLE} POST_BUILD
