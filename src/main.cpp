@@ -98,23 +98,23 @@ int main(int argc, char **argv){
     static char x_input[64] = "0.001";
     static char y_input[64] = "1";
     static char speed_input[64] = "1";
-/*
-    std::vector<glm::vec2> pointList[9][7];
+// /*
+    std::vector<glm::vec2> allPointList[9][7];
     for(int i = -4; i < 5; i++){
         for(int j = -3; j < 4; j++){
             Vector2d start = {i, j};
             // if(i == 0) start = {0.0001, j};
             auto newtonResult = newton2d(f, g, start);
-            std::cout<< "(" << i << ", " << j << ") => " << newtonResult.size() << " steps" << std::endl; 
             for(auto k:newtonResult){
-                std::cout << std::fixed << std::setprecision(7) << "( " << k[0] << ", " << k[1]  << " )"<< std::endl;        
-                pointList[i + 4][j + 3].push_back({k[0], k[1]});
+                // std::cout << std::fixed << std::setprecision(7) << "( " << k[0] << ", " << k[1]  << " )"<< std::endl;        
+                allPointList[i + 4][j + 3].push_back({k[0], k[1]});
             }
-            std::cout << "====================" << std::endl;
         }
     }
-*/
+// */
     int showPoint = 1;
+
+    int nxt = 0;
 
     float speed = 0.5;
     // get now time
@@ -122,11 +122,12 @@ int main(int argc, char **argv){
     std::vector<glm::vec2> pointList;
     std::string res;
 
+    bool runAll = false;
+    bool running = true;
     while(!glfwWindowShouldClose(window)){
         float nowTime = glfwGetTime();
 
 /*
-        int pointListI = nxt / 7, pointListJ = nxt % 7;
         if(nowTime - lastTime > 0.05){
             if(showPoint < pointList[pointListI][pointListJ].size()) {
                 showPoint++;
@@ -158,6 +159,25 @@ int main(int argc, char **argv){
             lastTime = nowTime;
         }
 */        
+        int pointListI = nxt / 7, pointListJ = nxt % 7;
+        if(nowTime - lastTime > speed && running){
+            if(showPoint < pointList.size()) {
+                showPoint++;
+            }
+            else if(runAll){
+                if(nxt < 62){
+                    nxt++, showPoint = 1;
+                    pointListI = nxt / 7, pointListJ = nxt % 7;
+                    pointList = allPointList[pointListI][pointListJ];
+                }
+                else{
+                    nxt= 0;
+                    runAll = false;
+                }
+            }  
+            lastTime = nowTime;
+
+        }
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -173,41 +193,84 @@ int main(int argc, char **argv){
             float x = 0, y = 0;
 
             if (ImGui::Button("Run")) {
+                runAll = false;
                 std::string x_value(x_input);
                 std::string y_value(y_input);
 
                 x = std::stod(x_value), y = std::stof(y_value);
-                showPoint = 0;
+                showPoint = 1;
+                lastTime = nowTime;
                 Vector2d start = {x, y};
                 auto newtonResult = newton2d(f, g, start);
                 pointList.clear();
                 for(auto i:newtonResult)
                     pointList.push_back({i[0], i[1]});
             }
+            ImGui::SameLine();
+
             if (ImGui::Button("Set Speed")) {
                 std::string s = std::string(speed_input);
                 if(s.size() == 0) speed = speed;
                 else
                     speed = std::stod(std::string(speed_input));
-                
             }
 
-            ImGui::Text("(%lf, %lf) => step: %d", x, y, (int)pointList.size());
+            ImGui::SameLine();
+
+            if(ImGui::Button("Run All")){
+                for(int j = -3; j < 4; j++){
+                    allPointList[0 + 4][j + 3].clear();
+                    Vector2d start = {0.0, j};
+                    auto newtonResult = newton2d(f, g, start);
+                    for(auto k:newtonResult){
+                        allPointList[0 + 4][j + 3].push_back({k[0], k[1]});
+                    }
+                }
+                nxt = 0;
+                showPoint = 1;
+                lastTime = nowTime;
+                pointList = allPointList[0][0];
+                runAll = true;
+            }
+            
+            if(ImGui::Button("Run All whitout divergence")){
+                for(int j = -3; j < 4; j++){
+                    allPointList[0 + 4][j + 3].clear();
+                    Vector2d start = {0.0001, j};
+                    auto newtonResult = newton2d(f, g, start);
+                    for(auto k:newtonResult){
+                        allPointList[0 + 4][j + 3].push_back({k[0], k[1]});
+                    }
+                }
+                nxt = 0;
+                showPoint = 1;
+                lastTime = nowTime;
+                pointList = allPointList[0][0];
+                runAll = true;
+            }
+            
+            if(ImGui::Button("Stop")){
+                running = false;
+            }
+
+            ImGui::SameLine();
+
+            if(ImGui::Button("Continue")){
+                running = true;
+            }
+
+            ImGui::Text("(%lf, %lf) => step: %d", (pointList.size() == 0 ? 0 : pointList[0].x), (pointList.size() == 0 ? 0 : pointList[0].y), (int)pointList.size());
             for(int i = 0; i < pointList.size(); i++){
+                if(pointList[i].x != pointList[i].x || pointList[i].y != pointList[i].y){
+                    ImGui::Text("Divergence at step %d", i);
+                    break;
+                }
                 ImGui::Text("(%lf, %lf)", pointList[i].x, pointList[i].y);
 
             }
 
             ImGui::End();
         }
-
-        if(nowTime - lastTime > speed){
-            if(showPoint < pointList.size()) {
-                lastTime = nowTime;
-                showPoint++;
-            }  
-        }
-
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
