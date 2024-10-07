@@ -286,7 +286,7 @@ int main(int argc, char **argv){
             glDrawArrays(GL_POINTS, 0, vertices.size());
             for(int i = -4; i < 5; i++){
                 for(int j = -3; j < 4; j++){
-                    std::vector<Vertex> vertices = update_point_vbo(pointVbo, allPointList[i + 4][j + 3]); 
+                    std::vector<Vertex> vertices = update_vbo(pointVbo, allPointList[i + 4][j + 3], allPointList[i + 4][j + 3].size(), 0); 
                     glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
                     glPointSize(8.0f);
                     glDrawArrays(GL_POINTS, 0, vertices.size());
