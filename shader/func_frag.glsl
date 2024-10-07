@@ -1,70 +1,67 @@
-// func_frag.glsl
-
 #version 410 core
 
 out vec4 FragColor;
-
 in vec2 TexCoord;
 
-void main(){
-    double x = double(TexCoord.x) * 5.0; // x ∈ [-4, 4]
-    double y = double(TexCoord.y) * 4.0; // y ∈ [-3, 3]
+void main() {
+    float x = float(TexCoord.x) * 5.0; // 将 TexCoord 转换为 float 类型
+    float y = float(TexCoord.y) * 4.0;
 
-    double value1 = (x * x) / 9.0 + (y * y) / 4.0 - 1.0;
+    // 定义方程
+    float value1 = (x * x) / 9.0 + (y * y) / 4.0 - 1.0;
 
-    double value2 = x * x - y - 4.0;
+    float value2 = x * x - y - 4.0;
 
-    double thickness = 0.02;
+    // 使用 fwidth 动态调整粗细
+    float thickness = 1;
+    float gradient1 = fwidth(value1);
+    float gradient2 = fwidth(value2);
 
-    //smoothstep 插植 
-    double alpha1 = 1.0 - smoothstep(0.0, thickness, abs(value1)); // value1 = 0 為在線上
-    double alpha2 = 1.0 - smoothstep(0.0, thickness * 3.0, abs(value2));
+    float alpha1 = 1.0 - smoothstep(0.0, thickness * gradient1, abs(value1));
+    float alpha2 = 1.0 - smoothstep(0.0, thickness * gradient2, abs(value2));
 
-    vec3 color1 = vec3(1.0, 0.0, 0.0);
-    vec3 color2 = vec3(0.0, 1.0, 0.0);
-    vec3 overlapColor = vec3(0.0, 0.0, 1.0);
+    // 定义颜色
+    vec3 color1 = vec3(1.0, 0.0, 0.0);  // 红色
+    vec3 color2 = vec3(0.0, 1.0, 0.0);  // 绿色
+    vec3 overlapColor = vec3(0.0, 0.0, 1.0); // 蓝色（重叠部分）
 
     vec3 color;
-    double alpha;
+    float alpha;
 
-    vec3 gridColor = vec3(0.5, 0.5, 0.5);
+    // 网格线颜色和粗细
+    vec3 gridColor = vec3(0.5, 0.5, 0.5); // 灰色
+    float gridThickness = 0.01;
 
-    double gridThickness = 0.01;
+    // 计算距离最近整数的距离，用于网格线
+    float xGridDist = abs(x - round(x));
+    float yGridDist = abs(y - round(y));
 
-    // x, y 被四捨五入回整數點
-    double xGridDist = abs(x - round(x));
-    double yGridDist = abs(y - round(y));
-    
-    if((abs(round(x) - x) < 0.03 && round(x) == 0) || (abs(round(y) - y) < 0.03 && round(y) == 0)){
+    // 设定坐标轴线更粗
+    if ((abs(round(x) - x) < 0.03 && round(x) == 0) || (abs(round(y) - y) < 0.03 && round(y) == 0)) {
         gridThickness = 0.03;
-        gridColor = vec3(1, 1, 1);
-
+        gridColor = vec3(1, 1, 1); // 白色
     }
 
-    double xGridAlpha = 1.0 - smoothstep(0.0, gridThickness, xGridDist);
-    double yGridAlpha = 1.0 - smoothstep(0.0, gridThickness, yGridDist);
+    float xGridAlpha = 1.0 - smoothstep(0.0, gridThickness, xGridDist);
+    float yGridAlpha = 1.0 - smoothstep(0.0, gridThickness, yGridDist);
+    float gridAlpha = max(xGridAlpha, yGridAlpha);
 
-    double gridAlpha = max(xGridAlpha, yGridAlpha);
-
-    if (alpha1 > 0.0 && alpha2 > 0.0){
+    // 颜色和透明度选择
+    if (alpha1 > 0.0 && alpha2 > 0.0) {
         color = overlapColor;
         alpha = max(alpha1, alpha2);
-    }
-    else if (alpha1 > 0.0){
+    } else if (alpha1 > 0.0) {
         color = color1;
         alpha = alpha1;
-    }
-    else if (alpha2 > 0.0){
+    } else if (alpha2 > 0.0) {
         color = color2;
         alpha = alpha2;
-    }
-    else if (gridAlpha > 0.0){
+    } else if (gridAlpha > 0.0) {
         color = gridColor;
         alpha = gridAlpha;
-    }
-    else{
+    } else {
         discard; 
     }
 
-    FragColor = vec4(color, float(alpha));
+    FragColor = vec4(color, alpha);
 }
