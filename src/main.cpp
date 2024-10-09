@@ -6,6 +6,7 @@
 #include<opencv4/opencv2/opencv.hpp>
 #include<iomanip>
 #include<fstream>
+#include<fstream>
 
 #include"newton2d.h"
 #include"visualize.h"
@@ -20,26 +21,26 @@
 // g(x, y) = x^2 - y - 4
 // key: 'x', 'y', 'c'（c for constant）
 // value: vector of terms
-// Polynomial f = {
-//     {'x', {{1.0/9, 2}}},
-//     {'y', {{1.0/4, 2}}},
-//     {'c', {{-1, 0}}}
-// };
-// Polynomial g = {
-//     {'x', {{1, 2}}},
-//     {'y', {{-1, 1}}},
-//     {'c', {{-4, 0}}}
-// };
 Polynomial f = {
-    {'x', {{1.0/9, 3}}},
-    {'y', {{1.0/10, 3}, {1.0/5, 2}}},
-    {'c', {{0, 0}}}
+    {'x', {{1.0/9, 2}}},
+    {'y', {{1.0/4, 2}}},
+    {'c', {{-1, 0}}}
 };
 Polynomial g = {
-    {'x', {{1, 4}, {1, 3}, {-10, 2}, {-8, 1}}},
+    {'x', {{1, 2}}},
     {'y', {{-1, 1}}},
-    {'c', {{0, 0}}}
+    {'c', {{-4, 0}}}
 };
+// Polynomial f = {
+//     {'x', {{1.0/9, 3}}},
+//     {'y', {{1.0/10, 3}, {1.0/5, 2}}},
+//     {'c', {{0, 0}}}
+// };
+// Polynomial g = {
+//     {'x', {{1, 4}, {1, 3}, {-10, 2}, {-8, 1}}},
+//     {'y', {{-1, 1}}},
+//     {'c', {{0, 0}}}
+// };
 // Polynomial f = {
 //     {'x', {{1.0, 2}}},
 //     {'y', {{-5, 1}}},
@@ -108,12 +109,22 @@ int main(int argc, char **argv){
     static char y_input[64] = "1";
     static char speed_input[64] = "1";
 // /*
+    std::fstream file;
+    file.open("result.txt", std::ios::out);
     std::vector<glm::vec2> allPointList[9][7];
     for(int i = -4; i < 5; i++){
         for(int j = -3; j < 4; j++){
             Vector2d start = {i, j};
             // if(i == 0) start = {0.0001, j};
             auto newtonResult = newton2d(f, g, start);
+            // write to file 
+            /*
+            P1 & 2.0 & 1.0  & 2.29890460 & 1.28496226 \\
+            \hline
+            */
+            file << "P" << (i + 4) * 7 + j + 4 << " & " << i << " & " << j << " & ";
+            file << std::fixed << std::setprecision(8) << newtonResult.back()[0] << " & " << newtonResult.back()[1] << " & " << newtonResult.size() << " \\\\ " << std::endl; 
+            file << "\\hline" << std::endl;
             if(newtonResult.back()[0] != newtonResult.back()[0] || newtonResult.back()[1] != newtonResult.back()[1])
                 std::cout << std::fixed << std::setprecision(7) << "( " << i << ", " << j  << " ) => Divergence" << std::endl;        
             
@@ -124,6 +135,14 @@ int main(int argc, char **argv){
             }
         }
     }
+    for(int j = -3; j < 4; j++){
+        Vector2d start = {0.0001, j};
+        auto newtonResult = newton2d(f, g, start);
+        file << "P" << j + 3 << " & 0.0001 & " << j << " & ";
+        file << std::fixed << std::setprecision(8) << newtonResult.back()[0] << " & " << newtonResult.back()[1] << " \\\\ " << std::endl;
+        file << "\\hline" << std::endl;
+    }
+    file.close();
 // */
     int showPoint = 1;
 
