@@ -1,5 +1,22 @@
 #include"newton2d.h"
 
+
+std::ostream &operator<<(std::ostream &os, const PolynomialMatrix2d &p){
+    for(int i = 0; i < 2; i++){
+        for(int j = 0; j < 2; j++){
+            os << "Matrix[" << i << "][" << j << "]: " << std::endl;
+            for(auto it = p(i, j).begin(); it != p(i, j).end(); it++){
+                os << it->first << ": ";
+                for(auto it2 = it->second.begin(); it2 != it->second.end(); it2++){
+                    os << it2->coef << " " << it2->power << " ";
+                }
+                os << std::endl;
+            }
+        }
+    }
+    return os;
+}
+
 Polynomial get_partial_derivative(Polynomial p, char var){
     Polynomial result;
     for(auto it = p.begin(); it != p.end(); it++){
@@ -48,11 +65,19 @@ std::vector<Vector2d> newton2d(Polynomial f, Polynomial g, Vector2d startPoint){
     result.push_back(startPoint);
     Vector2d nowPoint, lastPoint;
     PolynomialMatrix2d jacobian = get_jacobian_matrix(f, g);
+    std::cout << jacobian << std::endl;
     nowPoint = startPoint;
     for(;;){
+        std::cout << "--------------" << std::endl;
+        std::cout << "Point: " << nowPoint << std::endl;
         lastPoint = nowPoint;
         Matrix2d jacobianValue = get_jacobian_value(jacobian, nowPoint);
+        std::cout << "Jacobian: " << std::endl;
+        std::cout << std::fixed << std::setprecision(8) << jacobianValue << std::endl;
+        std::cout << "Jacobian inverse: " << std::endl;
+        std::cout << std::fixed << std::setprecision(8) << -jacobianValue.inverse() << std::endl;
         Vector2d fValue = {get_func_value(f, nowPoint), get_func_value(g, nowPoint)};
+        std::cout << "fValue: " << fValue << std::endl;
         nowPoint = lastPoint - jacobianValue.inverse() * fValue;
         double error = std::sqrt((nowPoint[0] - lastPoint[0]) * (nowPoint[0] - lastPoint[0]) + 
                         (nowPoint[1] - lastPoint[1]) * (nowPoint[1] - lastPoint[1]));
@@ -64,5 +89,6 @@ std::vector<Vector2d> newton2d(Polynomial f, Polynomial g, Vector2d startPoint){
             break;
         }
     }
+    std::cout << "===============" << std::endl;
     return result;
 }

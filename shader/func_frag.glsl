@@ -8,9 +8,14 @@ void main() {
     float y = float(TexCoord.y) * 4.0;
 
     // 定义方程
-    float value1 = (x * x) / 9.0 + (y * y) / 4.0 - 1.0;
+    // float value1 = (x * x) / 9.0 + (y * y) / 4.0 - 1.0;
 
-    float value2 = x * x - y - 4.0;
+    // float value2 = x * x - y - 4.0;
+
+    float value1 = (x * x * x) / 9.0 + (y * y * y) / 10.0 + (y * y) / 5.0;
+
+    float value2 = x * x * x * x + x * x * x - x * x * 10 - 8 * x - y;
+ 
 
     // 使用 fwidth 动态调整粗细
     float thickness = 1;
