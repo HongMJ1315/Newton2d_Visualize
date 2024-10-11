@@ -16,6 +16,8 @@
 \setCJKmainfont{Noto Sans CJK HK}
 % 英文字體 consolas
 \setmonofont{Consolas}
+% 設定內文文字大小
+\renewcommand{\normalsize}{\fontsize{12pt}{\baselineskip}\selectfont}
 
 % 設定頁首
 \fancyhf{}
@@ -105,9 +107,6 @@
     \item \texttt{update\_point\_vbo()}: 更新迭代點的 VBO。
 \end{itemize}
 
-\section{程式功能描述}
-本程式結合了牛頓法算法和 OpenGL 視覺化技術，以動態的方式展示牛頓法在不同初始條件下的收斂過程。用戶可以調整初始參數來觀察其對收斂速度和最終結果的影響。透過 GLSL 著色器實現的視覺化效果，提升了觀察牛頓法算法運作原理的直觀性。
-
 \section{UI 說明}
 % 插入圖片
 \begin{figure}[h]
@@ -128,6 +127,10 @@
     \item \textbf{Save Image}: 用於保存當前視窗的畫面。
     \item \textbf{Show Point Status}: 用於所有起使點的迭代結果。
 \end{itemize}
+
+\section{心得}
+這次得作業實做牛頓2D的計算過程，牛頓法在上課時聽得沒很懂，也是到時做前才搞懂流程。在實做中利用到矩陣運算庫Eigen來完成部份矩陣操作包含反矩陣、矩陣乘法等。在視覺化上，我利用GLSL差值來完成函數和收斂點過程圖形的繪製，雖然一開始遇到線條粗細不一，特定情況下還會出現函數扭曲，但後來加上fwidth就成功修正這問題了。
+在後續也嘗試不同的函數來觀察收斂過程，雖然在過程中出現與預期收斂結果不同的情況，在偵錯過程中發現偏微分計算結果有問題，持續追查才發現是我函數初始格式錯誤，後續解決後也正常執行了。
 
 \section{運行結果}
 % 插入第二張圖片並強制位置
@@ -154,7 +157,6 @@
         P4 & 2.29890460 & 1.28496226 \\
         \hline
     \end{tabular}
-    \caption{起始點和經過點}
 \end{table}
 
 \subsection{P1-2、P1-3}
